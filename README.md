@@ -21,7 +21,10 @@
 Use the "Add Integration" in Home Assistant and select "Link2Home" and follow the following steps:
 
 1. Put in your Link2Home email address and password in the component setup.
-
+2. For some environments like Ubuntu the udp broadcasting function must be enabled (PERM Error 13 on component load)
+    - collect old value: `sysctl net.ipv4.ping_group_range`
+    - set new value: `sudo sysctl -w net.ipv4.ping_group_range="0 65535"`
+    - Note: Unsecure config, check the group id of your HA-user and adjust the values. (`getent group YOUR_USER`, example: `="1000 1000"`)
 
 ### Sensors
 Todo: Add doc
