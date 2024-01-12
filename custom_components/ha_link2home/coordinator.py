@@ -64,7 +64,11 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # async with async_timeout.timeout(10):
             if not self.initialized:
                 devices = await self.webapi.get_device_list()
-                LOGGER.info("Link2Home Cloud delivered %s devices", len(devices))
+                LOGGER.info(
+                    "Link2Home Cloud delivered %s device(s). Starting local discovery",
+                    len(devices),
+                )
+                LOGGER.debug(devices)
 
                 for result in devices:
                     LOGGER.debug(result)
@@ -85,8 +89,6 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             else:
                 devices = self.data
-
-            LOGGER.debug(devices)
 
             while not self.udpsession.queue.empty():
                 queue_item: str = self.udpsession.queue.get_nowait()
@@ -154,7 +156,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 state = True if payload[2:4] == "ff" else False
 
             self.udp_data[key] = "ff" if state else "00"
-            LOGGER.debug("process_udp_message: %s", self.udp_data)
+            LOGGER.debug("process_udp_message - end: %s", self.udp_data)
 
     @callback
     def handle_udp_events(self):
