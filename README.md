@@ -40,3 +40,9 @@ logger:
   logs:
     custom_components.ha_link2home: debug
 ```
+
+
+### Thanks
+Based on the repos:
+- https://github.com/TA2k/ioBroker.link2home
+- https://github.com/oxygen0211/ha-link2home
