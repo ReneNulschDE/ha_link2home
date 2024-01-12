@@ -30,18 +30,6 @@ CONFIG_SCHEMA = vol.Schema(
     }
 )
 
-OPTIONS_SCHEMA = CONFIG_SCHEMA
-
-CONFIG_FLOW: dict[str, SchemaFlowFormStep | SchemaFlowMenuStep] = {
-    "user": SchemaFlowFormStep(CONFIG_SCHEMA),
-    "reauth": SchemaFlowFormStep(CONFIG_SCHEMA),
-}
-
-
-OPTIONS_FLOW: dict[str, SchemaFlowFormStep | SchemaFlowMenuStep] = {
-    "init": SchemaFlowFormStep(OPTIONS_SCHEMA),
-}
-
 
 class ConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config or options flow for Link2Home."""
@@ -97,40 +85,3 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
         self._existing_entry = user_input
 
         return self.async_show_form(step_id="user", data_schema=CONFIG_SCHEMA)
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry):
-        """Get options flow."""
-        return OptionsFlowHandler(config_entry)
-
-
-class OptionsFlowHandler(OptionsFlow):
-    """Options flow handler."""
-
-    def __init__(self, config_entry):
-        """Initialize options flow."""
-        self.config_entry = config_entry
-        self.options = dict(config_entry.options)
-
-    async def async_step_init(self, user_input=None):
-        """Manage the options."""
-
-        if user_input is not None:
-            return self.async_create_entry(
-                title=DOMAIN, options={CONF_USERNAME: username, CONF_PASSWORD: password}
-            )
-
-        options = self.config_entry.options
-        username = options.get(CONF_USERNAME, "")
-        password = options.get(CONF_PASSWORD, "")
-
-        return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_USERNAME, default=username): str,
-                    vol.Optional(CONF_PASSWORD, default=password): str,
-                }
-            ),
-        )
