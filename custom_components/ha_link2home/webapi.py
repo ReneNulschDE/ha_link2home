@@ -81,7 +81,7 @@ class Link2HomeWebApi:
             return True
 
         if login_response.get("code"):
-            raise ConfigEntryAuthFailed
+            return False
 
         LOGGER.warn("login: other error -  %s", login_response)
         return False
