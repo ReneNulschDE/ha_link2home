@@ -18,7 +18,7 @@ from .model import Link2HomeDevice
 from .udpapi import Link2HomeUDPServer
 from .webapi import Link2HomeWebApi
 
-UPDATE_INTERVAL = timedelta(minutes=0.5)
+UPDATE_INTERVAL = timedelta(minutes=60)
 BROADCAST_IP = "255.255.255.255"
 LOGGER = logging.getLogger(__name__)
 
@@ -65,7 +65,6 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if not self.initialized:
                 devices = await self.webapi.get_device_list()
                 LOGGER.info("Link2Home Cloud delivered %s devices", len(devices))
-                LOGGER.debug(devices)
 
                 for result in devices:
                     LOGGER.debug(result)
@@ -99,12 +98,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 channel = switch.split("_")[1]
                 ip = switch.split("_")[2]
 
-                LOGGER.debug("_async_update_data: switch - %s", switch)
-                LOGGER.debug("_async_update_data: mac - %s", mac)
-                LOGGER.debug("_async_update_data: channel - %s", channel)
-
                 if mac in devices:
-                    LOGGER.debug("_async_update_data: mac in devices")
                     if channel == "01":
                         devices[mac].channel1 = self.udp_data[switch]
                     if channel == "02":
@@ -115,8 +109,6 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     LOGGER.debug("_async_update_data: mac not in devices")
 
-            LOGGER.debug("_async_update_data: udp_data - %s", self.udp_data)
-            LOGGER.debug("_async_update_data: devices - %s", devices)
             return devices
 
         except (ClientConnectorError,) as error:
@@ -142,14 +134,9 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.udpsession.send(msg, device.ip if device.ip != "" else BROADCAST_IP)
 
     def process_udp_message(self, data: str, ip, port):
-        LOGGER.debug("process_udp_message: started - %s", data)
-
         msg_type = data[2:4]
 
         if msg_type not in ("04", "06"):
-            LOGGER.debug(
-                "process_udp_message: unknown/unwanted msg_type - %s", msg_type
-            )
             return
 
         mac = data[4:16]
@@ -171,5 +158,4 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @callback
     def handle_udp_events(self):
-        LOGGER.debug("handle_udp_events: start async_refresh")
         self.hass.loop.create_task(self.async_refresh())

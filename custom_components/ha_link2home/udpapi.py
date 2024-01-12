@@ -64,20 +64,14 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
     @callback
     def datagram_received(self, data: bytes, addr: tuple[str, int]) -> None:
         """Handle incoming UDP packet."""
-        LOGGER.debug(
-            "datagram_received: start - local address: %s remote address: %s",
-            self.locale_addr[0],
-            addr[0],
-        )
         if not self.started or self.stopped:
             return
         if self.remote_addr is None:
             self.remote_addr = addr
 
-        if self.locale_addr[0] != addr[0]:
-            self.queue.put(f"{data.hex()}_{addr[0]}_{addr[1]}")
-            if self.initialized:
-                self.handle_event()
+        self.queue.put(f"{data.hex()}_{addr[0]}_{addr[1]}")
+        if self.initialized:
+            self.handle_event()
 
     def error_received(self, exc: Exception) -> None:
         """Handle when a send or receive operation raises an OSError.

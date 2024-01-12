@@ -132,9 +132,11 @@ class Link2HomeSensor(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SensorE
 
         self._attr_unique_id = util.slugify(f"{device.macAddress} {description.key}")
         self._attr_name = description.key
+        self._attr_should_poll = False
+
         self.entity_description = description
         self.device: Link2HomeDevice = device
-        self._sensor_data = _get_sensor_data(
+        self._sensor_data = getattr(
             coordinator.data.get(device.macAddress), description.key
         )
 
@@ -178,15 +180,8 @@ class Link2HomeSensor(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SensorE
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle data update."""
-        LOGGER.debug("_handle_coordinator_update: started")
-        self._sensor_data = _get_sensor_data(
+        self._sensor_data = getattr(
             self.coordinator.data.get(self.device.macAddress),
             self.entity_description.key,
         )
         self.async_write_ha_state()
-
-
-def _get_sensor_data(sensors: list[dict[str, Any]], key: str) -> Any:
-    """Get sensor data."""
-    # LOGGER.debug("_get_sensor_data: started")
-    return getattr(sensors, key)
