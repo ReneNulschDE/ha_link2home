@@ -1,0 +1,80 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Component is configured already.",
+      "reauth_successful": "Reauth successful! Component reload in progress."
+    },
+    "error": {
+      "cannot_connect": "cannot_connect",
+      "invalid_auth": "invalid_auth",
+      "unknown": "unknown"
+    },
+    "step": {
+      "user": {
+        "title": "Connect to Link2Home",
+        "description": "Connect using your Link2Home account.",
+        "data": {
+          "password": "Password",
+          "username": "Username",
+          "name": "[%key:common::config_flow::data::name%]"
+        }
+      }
+    }
+  },
+  "issues": {
+    "restart_required": {
+      "fix_flow": {
+        "step": {
+          "confirm_restart": {
+            "description": "Restart of Home Assistant is required to finish auth update click submit to restart now.",
+            "title": "Restart required"
+          }
+        }
+      },
+      "title": "Restart required"
+    }
+  },
+  "options": {
+    "abort": {
+      "already_configured": "Component is configured already.",
+      "reauth_successful": "Reauth successful! Component reload in progress."
+    },
+    "step": {
+      "init": {
+        "data": {
+          "password": "Password",
+          "username": "Username"
+        },
+        "description": "Configure your options. The component will reload after saving your changes.",
+        "title": "HA_Link2Home Options"
+      }
+    }
+  },
+  "system_health": {
+    "info": {
+      "api_endpoint_reachable": "Link2Home Cloud API endpoint reachable"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "lock": {
+        "state": {
+          "0": "Unlocked",
+          "1": "Locked int",
+          "2": "Locked",
+          "3": "Partly unlocked",
+          "4": "Unknown"
+        },
+        "state_attributes": {
+          "decklidstatus": {
+            "name": "Deck lid",
+            "state": {
+              "false": "closed",
+              "true": "open"
+            }
+          }
+        }
+      }
+    }
+  }
+}
