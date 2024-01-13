@@ -4,7 +4,6 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN, LINK2HOME_PLATFORMS, LOGGER
@@ -19,13 +18,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     websession = async_get_clientsession(hass)
 
-    try:
-        coordinator = Link2HomeDataUpdateCoordinator(
-            hass, websession, username, password
-        )
-        await coordinator.async_init()
-    except ConfigEntryAuthFailed as auth_error:
-        raise auth_error
+    coordinator = Link2HomeDataUpdateCoordinator(hass, websession, username, password)
+    await coordinator.async_init()
+    await hass.async_block_till_done()
 
     await coordinator.async_config_entry_first_refresh()
 

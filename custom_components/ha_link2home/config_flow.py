@@ -1,24 +1,17 @@
 """Config flow for NEW_NAME integration."""
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any, cast
+from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, OptionsFlow
+
+from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
-from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.schema_config_entry_flow import (
-    SchemaConfigFlowHandler,
-    SchemaFlowFormStep,
-    SchemaFlowMenuStep,
-)
 
 from .const import DOMAIN, LOGGER
-from .coordinator import Link2HomeDataUpdateCoordinator
 from .webapi import Link2HomeWebApi
 
 CONFIG_SCHEMA = vol.Schema(
@@ -31,7 +24,7 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-class ConfigFlow(ConfigFlow, domain=DOMAIN):
+class Link2HomeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config or options flow for Link2Home."""
 
     VERSION = 1
@@ -59,24 +52,21 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
         if not self.reauth_mode:
             self._abort_if_unique_id_configured()
 
-        try:
-            webapi: Link2HomeWebApi = Link2HomeWebApi(
-                async_get_clientsession(self.hass), username, password
+        webapi: Link2HomeWebApi = Link2HomeWebApi(
+            async_get_clientsession(self.hass), username, password
+        )
+        if not await webapi.login():
+            LOGGER.info("")
+            errors["base"] = "cannot_connect"
+            return self.async_show_form(
+                step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
             )
-            if not webapi.login():
-                LOGGER.info("")
-                errors["base"] = "cannot_connect"
-                return self.async_show_form(
-                    step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
-                )
 
-            return self.async_create_entry(
-                title=username,
-                data={},
-                options={CONF_USERNAME: username, CONF_PASSWORD: password},
-            )
-        except Exception:
-            raise
+        return self.async_create_entry(
+            title=username,
+            data={},
+            options={CONF_USERNAME: username, CONF_PASSWORD: password},
+        )
 
     async def async_step_reauth(self, user_input=None):
         """Get new tokens for a config entry that can't authenticate."""
