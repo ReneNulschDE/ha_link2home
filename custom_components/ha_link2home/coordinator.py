@@ -159,5 +159,5 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @callback
     def handle_udp_events(self):
-        """Alart HA incomming udp packages."""
+        """Alart HA incoming udp packages."""
         self.hass.loop.create_task(self.async_refresh())

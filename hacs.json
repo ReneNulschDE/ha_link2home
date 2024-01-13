@@ -1,5 +1,5 @@
 {
-    "name": "Link2Home",
-    "homeassistant": "2023.11.0",
-    "render_readme": true
+  "name": "Link2Home",
+  "homeassistant": "2023.11.0",
+  "render_readme": true
 }
