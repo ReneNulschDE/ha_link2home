@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterable, Callable
 import logging
 import queue as q
-from collections.abc import AsyncIterable, Callable
 from socket import AF_INET, IPPROTO_UDP, SO_BROADCAST, SOCK_DGRAM, SOL_SOCKET, socket
 from typing import cast
 
