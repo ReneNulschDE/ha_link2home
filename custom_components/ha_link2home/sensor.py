@@ -105,7 +105,7 @@ async def async_setup_entry(
     data: list[Link2HomeDevice] = list(coordinator.data.values())
 
     for result in data:
-        device_sensors = result.__dir__()
+        device_sensors = dir(result)
         entities.extend(
             [
                 Link2HomeSensor(result, coordinator, description)

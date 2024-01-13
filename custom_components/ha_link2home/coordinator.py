@@ -92,16 +92,16 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 item = queue_item.split("_")
                 self.process_udp_message(item[0], item[1], item[2])
 
-            for switch in self.udp_data:
+            for switch, switch_state in self.udp_data.items():
                 mac = switch.split("_")[0]
                 channel = switch.split("_")[1]
                 ip = switch.split("_")[2]
 
                 if mac in devices:
                     if channel == "01":
-                        devices[mac].channel1 = self.udp_data[switch]
+                        devices[mac].channel1 = switch_state
                     if channel == "02":
-                        devices[mac].channel2 = self.udp_data[switch]
+                        devices[mac].channel2 = switch_state
                     devices[mac].online_local = True
                     devices[mac].ip = ip
                     devices[mac].last_operation_local = datetime.now(UTC)
@@ -152,7 +152,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if len(payload) < 4:
                 state = False
             else:
-                state = True if payload[2:4] == "ff" else False
+                state = payload[2:4] == "ff"
 
             self.udp_data[key] = "ff" if state else "00"
             LOGGER.debug("process_udp_message - end: %s", self.udp_data)

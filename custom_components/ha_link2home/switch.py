@@ -135,7 +135,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
     @property
     def is_on(self) -> bool:
         """Return if switch is enabled."""
-        return True if self._sensor_data == "ff" else False
+        return self._sensor_data == "ff"
 
     @callback
     def _handle_coordinator_update(self) -> None:

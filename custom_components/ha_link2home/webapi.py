@@ -34,6 +34,7 @@ class Link2HomeWebApi:
         self._username: str = username
         self._password: str = password
         self.initialized: bool = False
+        self.token: str = ""
 
     def _create_sign(self, data):
         # DER / PKCS#8
@@ -166,8 +167,7 @@ class Link2HomeWebApi:
             LOGGER.debug(traceback.format_exc())
             if not ignore_errors:
                 raise ClientError from err
-            else:
-                return None
+            return None
         except Exception:
             LOGGER.debug(traceback.format_exc())
         finally:

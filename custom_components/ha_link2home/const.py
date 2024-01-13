@@ -16,6 +16,6 @@ LOGIN_BASE_URI = "https://userdata.link2home.com"
 GENERAL_AUTH_CODE = "7150"
 
 PROXY_DISABLED = True
-DISABLE_SSL_CERT_CHECK = True if PROXY_DISABLED else False
+DISABLE_SSL_CERT_CHECK = not PROXY_DISABLED
 SYSTEM_PROXY: str | None = None if PROXY_DISABLED else "http://192.168.178.61:8080"
 PROXIES: dict | None = {} if PROXY_DISABLED else {"https": SYSTEM_PROXY}
