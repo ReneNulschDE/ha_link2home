@@ -1,7 +1,9 @@
 """Constants for the Link2Home integration."""
+from __future__ import annotations
+
 import logging
 
-from homeassistant.const import Platform, UnitOfEnergy
+from homeassistant.const import Platform
 
 LINK2HOME_PLATFORMS = [Platform.SENSOR, Platform.SWITCH]
 
@@ -13,12 +15,7 @@ LOGIN_BASE_URI = "https://userdata.link2home.com"
 
 GENERAL_AUTH_CODE = "7150"
 
-
-VERIFY_SSL = True
-DISABLE_SSL_CERT_CHECK = VERIFY_SSL
-SYSTEM_PROXY = None
-PROXIES = {}
-# SYSTEM_PROXY = "http://192.168.178.61:8080"
-# PROXIES = {
-#    "https": SYSTEM_PROXY,
-# }
+PROXY_DISABLED = True
+DISABLE_SSL_CERT_CHECK = True if PROXY_DISABLED else False
+SYSTEM_PROXY: str | None = None if PROXY_DISABLED else "http://192.168.178.61:8080"
+PROXIES: dict | None = {} if PROXY_DISABLED else {"https": SYSTEM_PROXY}

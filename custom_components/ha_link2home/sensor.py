@@ -33,9 +33,7 @@ class Link2HomeSensorDescriptionMixin:
 
 
 @dataclass(frozen=True)
-class Link2HomeSensorDescription(
-    SensorEntityDescription, Link2HomeSensorDescriptionMixin
-):
+class Link2HomeSensorDescription(SensorEntityDescription, Link2HomeSensorDescriptionMixin):
     """Class describing Link2Home sensor entities."""
 
     attr_fn: Callable[[Any | None], dict[str, Any]] = lambda _: {}
@@ -141,9 +139,7 @@ class Link2HomeSensor(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SensorE
 
         self.entity_description = description
         self.device: Link2HomeDevice = device
-        self._sensor_data = getattr(
-            coordinator.data.get(device.mac_address), description.key
-        )
+        self._sensor_data = getattr(coordinator.data.get(device.mac_address), description.key)
 
     @property
     def native_value(self) -> str | int | float | datetime | None:
@@ -154,9 +150,7 @@ class Link2HomeSensor(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SensorE
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes."""
 
-        return self.entity_description.attr_fn(
-            self.coordinator.data.get(self.device.mac_address)
-        )
+        return self.entity_description.attr_fn(self.coordinator.data.get(self.device.mac_address))
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -173,9 +167,7 @@ class Link2HomeSensor(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SensorE
         )
 
         if self.device.mac_address:
-            info[ATTR_CONNECTIONS] = {
-                (dr.CONNECTION_NETWORK_MAC, self.device.mac_address)
-            }
+            info[ATTR_CONNECTIONS] = {(dr.CONNECTION_NETWORK_MAC, self.device.mac_address)}
 
         if self.device.version:
             info[ATTR_SW_VERSION] = self.device.version

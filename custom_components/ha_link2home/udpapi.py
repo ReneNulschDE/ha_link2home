@@ -52,9 +52,7 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
 
         sock.bind(("", UDP_PORT))
 
-        await asyncio.get_running_loop().create_datagram_endpoint(
-            accept_connection, sock=sock
-        )
+        await asyncio.get_running_loop().create_datagram_endpoint(accept_connection, sock=sock)
 
         self.started = True
         self.locale_addr = sock.getsockname()
@@ -101,9 +99,7 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
         if self.transport is not None:
             self.transport.close()
 
-    def send_status_request(
-        self, mac_address: str, payload: str, ip: str = "255.255.255.255"
-    ):
+    def send_status_request(self, mac_address: str, payload: str, ip: str = "255.255.255.255"):
         """Send status request as broadcast."""
         data = (
             "a100"

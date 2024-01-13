@@ -79,9 +79,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
         self._attr_should_poll = False
 
         self.channel = self.entity_description.key[-1:].zfill(2)
-        self._sensor_data = getattr(
-            coordinator.data.get(device.mac_address), description.key
-        )
+        self._sensor_data = getattr(coordinator.data.get(device.mac_address), description.key)
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -98,9 +96,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
         )
 
         if self.device.mac_address:
-            info[ATTR_CONNECTIONS] = {
-                (dr.CONNECTION_NETWORK_MAC, self.device.mac_address)
-            }
+            info[ATTR_CONNECTIONS] = {(dr.CONNECTION_NETWORK_MAC, self.device.mac_address)}
 
         if self.device.version:
             info[ATTR_SW_VERSION] = self.device.version
@@ -120,9 +116,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
             self.coordinator.set_state(self.device, True, self.channel)
 
         except asyncio.TimeoutError as er:
-            raise HomeAssistantError(
-                "Blink failed to arm camera motion detection"
-            ) from er
+            raise HomeAssistantError("Blink failed to arm camera motion detection") from er
 
         await self.coordinator.async_refresh()
 
@@ -133,7 +127,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
 
         except asyncio.TimeoutError as er:
             raise HomeAssistantError(
-                f"Link2Home failed to switch of channel {self.channel} of the device {self.device_info.name}" # type: ignore
+                f"Link2Home failed to switch of channel {self.channel} of the device {self.device_info.name}"  # type: ignore
             ) from er
 
         await self.coordinator.async_refresh()

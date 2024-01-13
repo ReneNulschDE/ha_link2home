@@ -77,12 +77,8 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                     for _x in range(0, 3):
                         # 02-query, 01-channel
-                        self.udpsession.send_status_request(
-                            result, "0201", BROADCAST_IP
-                        )
-                        self.udpsession.send_status_request(
-                            result, "0202", BROADCAST_IP
-                        )
+                        self.udpsession.send_status_request(result, "0201", BROADCAST_IP)
+                        self.udpsession.send_status_request(result, "0202", BROADCAST_IP)
                         await asyncio.sleep(0.2)
 
                 self.udpsession.initialized = True

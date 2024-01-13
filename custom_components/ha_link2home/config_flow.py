@@ -35,9 +35,7 @@ class Link2HomeConfigFlow(ConfigFlow, domain=DOMAIN):
         self.data = None
         self.reauth_mode = False
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Get configuration from the user."""
 
         if user_input is None:
@@ -58,9 +56,7 @@ class Link2HomeConfigFlow(ConfigFlow, domain=DOMAIN):
         if not await webapi.login():
             LOGGER.info("")
             errors["base"] = "cannot_connect"
-            return self.async_show_form(
-                step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
-            )
+            return self.async_show_form(step_id="user", data_schema=CONFIG_SCHEMA, errors=errors)
 
         return self.async_create_entry(
             title=username,
