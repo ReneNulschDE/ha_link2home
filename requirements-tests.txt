@@ -14,7 +14,7 @@ mock-open==1.4.0
 pydantic==1.10.12
 pylint-per-file-ignores==1.2.1
 pipdeptree==2.11.0
-pytest-asyncio==0.21.0
+pytest-asyncio==0.23.3
 pytest-aiohttp==1.0.5
 pytest-cov==4.1.0
 pytest-freezer==0.4.8
