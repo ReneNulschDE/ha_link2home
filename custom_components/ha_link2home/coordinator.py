@@ -1,12 +1,11 @@
-"""The Link2Home integration."""
+"""The Link2Home Data Coordinator."""
 from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-import async_timeout
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
 from homeassistant.core import HomeAssistant, callback
@@ -27,7 +26,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Class to manage fetching Link2Home data web and udp API."""
 
     initialized: bool = False
-    udp_data: {str, any} = {}
+    udp_data: dict[str, Any] = {}
 
     def __init__(
         self,
@@ -44,10 +43,11 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         super().__init__(hass, LOGGER, name=DOMAIN, update_interval=UPDATE_INTERVAL)
 
-    async def async_init(self):
+    async def async_init(self) -> bool:
+        """Addition init async."""
         try:
-            async with async_timeout.timeout(10):
-                login_result: bool = await self.webapi.login()
+            async with asyncio.timeout(10):
+                return await self.webapi.login()
         except ConfigEntryAuthFailed as auth_error:
             raise auth_error
         except (ClientConnectorError,) as error:
@@ -61,7 +61,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if not self.udpsession.started:
                 await self.udpsession.start_server()
 
-            # async with async_timeout.timeout(10):
+            # async with asyncio.timeout(10):
             if not self.initialized:
                 devices = await self.webapi.get_device_list()
                 LOGGER.info(
@@ -74,7 +74,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     LOGGER.debug(result)
                     await asyncio.sleep(0.5)
 
-                    for x in range(0, 3):
+                    for _x in range(0, 3):
                         # 02-query, 01-channel
                         self.udpsession.send_status_request(
                             result, "0201", BROADCAST_IP
@@ -95,7 +95,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 item = queue_item.split("_")
                 self.process_udp_message(item[0], item[1], item[2])
 
-            for switch in self.udp_data.keys():
+            for switch in self.udp_data:
                 mac = switch.split("_")[0]
                 channel = switch.split("_")[1]
                 ip = switch.split("_")[2]
@@ -107,7 +107,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         devices[mac].channel2 = self.udp_data[switch]
                     devices[mac].online_local = True
                     devices[mac].ip = ip
-                    devices[mac].lastOperation_local = datetime.now(timezone.utc)
+                    devices[mac].last_operation_local = datetime.now(UTC)
                 else:
                     LOGGER.debug("_async_update_data: mac not in devices")
 
@@ -117,13 +117,14 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(error) from error
 
     def set_state(self, device: Link2HomeDevice, state: bool, channel: str = "01"):
+        """Prepare udp package and send."""
         data = [
             "a104",
-            device.macAddress.lower(),
+            device.mac_address.lower(),
             "0009",
             format(self.udpsession.sequence, "04x"),
-            device.companyCode,
-            device.deviceType,
+            device.company_code,
+            device.device_type,
             GENERAL_AUTH_CODE,
             "01",
             channel,
@@ -136,6 +137,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.udpsession.send(msg, device.ip if device.ip != "" else BROADCAST_IP)
 
     def process_udp_message(self, data: str, ip, port):
+        """Process UDP message and extract data."""
         msg_type = data[2:4]
 
         if msg_type not in ("04", "06"):
@@ -160,4 +162,5 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @callback
     def handle_udp_events(self):
+        """Alart HA incomming udp packages."""
         self.hass.loop.create_task(self.async_refresh())

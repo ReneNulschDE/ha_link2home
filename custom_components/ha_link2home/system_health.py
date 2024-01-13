@@ -1,8 +1,10 @@
 """Provide info to system health."""
+from __future__ import annotations
+
 from homeassistant.components import system_health
 from homeassistant.core import HomeAssistant, callback
 
-from .const import DOMAIN, LOGIN_BASE_URI
+from .const import LOGIN_BASE_URI
 
 
 @callback
@@ -15,7 +17,6 @@ def async_register(
 
 async def system_health_info(hass):
     """Get info for the info page."""
-    client = hass.data[DOMAIN]
 
     return {
         "api_endpoint_reachable": system_health.async_check_can_reach_url(

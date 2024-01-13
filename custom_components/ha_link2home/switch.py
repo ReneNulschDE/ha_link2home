@@ -45,7 +45,7 @@ async def async_setup_entry(
     """Set up the Link2Home switches."""
 
     coordinator: Link2HomeDataUpdateCoordinator = hass.data[DOMAIN][config.entry_id]
-    data: list[Link2HomeDevice] = coordinator.data.values()
+    data: list[Link2HomeDevice] = list(coordinator.data.values())
     entities = []
 
     for result in data:
@@ -74,32 +74,32 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
         super().__init__(coordinator)
         self.device = device
         self.entity_description = description
-        self._attr_unique_id = util.slugify(f"{device.macAddress} {description.key}")
+        self._attr_unique_id = util.slugify(f"{device.mac_address} {description.key}")
         self._attr_name = description.key
         self._attr_should_poll = False
 
         self.channel = self.entity_description.key[-1:].zfill(2)
         self._sensor_data = getattr(
-            coordinator.data.get(device.macAddress), description.key
+            coordinator.data.get(device.mac_address), description.key
         )
 
     @property
     def device_info(self) -> DeviceInfo:
         """Device information."""
         info = DeviceInfo(
-            identifiers={(DOMAIN, self.device.macAddress)},
+            identifiers={(DOMAIN, self.device.mac_address)},
             manufacturer="Link2Home",
-            model=self.device.deviceType,
+            model=self.device.device_type,
             name=(
-                self.device.deviceName
+                self.device.device_name
                 or cast(ConfigEntry, self.coordinator.config_entry).title
-                or f"{self.device.deviceType} ({self.device.macAddress})"
+                or f"{self.device.device_type} ({self.device.mac_address})"
             ),
         )
 
-        if self.device.macAddress:
+        if self.device.mac_address:
             info[ATTR_CONNECTIONS] = {
-                (dr.CONNECTION_NETWORK_MAC, self.device.macAddress)
+                (dr.CONNECTION_NETWORK_MAC, self.device.mac_address)
             }
 
         if self.device.version:
@@ -133,7 +133,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
 
         except asyncio.TimeoutError as er:
             raise HomeAssistantError(
-                f"Link2Home failed to switch of channel {self.channel} of the device {self.device_info.name}"
+                f"Link2Home failed to switch of channel {self.channel} of the device {self.device_info.name}" # type: ignore
             ) from er
 
         await self.coordinator.async_refresh()
@@ -147,7 +147,7 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
     def _handle_coordinator_update(self) -> None:
         """Handle data update."""
         self._sensor_data = getattr(
-            self.coordinator.data.get(self.device.macAddress),
+            self.coordinator.data.get(self.device.mac_address),
             self.entity_description.key,
         )
         self.async_write_ha_state()

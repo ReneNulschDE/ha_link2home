@@ -1,9 +1,12 @@
+"""The Link2Home UDP API."""
+from __future__ import annotations
+
 import asyncio
 import logging
 import queue as q
 from collections.abc import AsyncIterable, Callable
 from socket import AF_INET, IPPROTO_UDP, SO_BROADCAST, SOCK_DGRAM, SOL_SOCKET, socket
-from typing import Callable, cast
+from typing import cast
 
 from homeassistant.core import callback
 
@@ -12,6 +15,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Link2HomeUDPServer(asyncio.DatagramProtocol):
+    """The Link2Home UDP Server."""
+
     started = False
     stopped = False
     transport: asyncio.DatagramTransport | None = None
@@ -19,6 +24,7 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
     locale_addr: tuple[str, int] | None = None
     sequence: int = 1
     initialized: bool = False
+    handle_finished: Callable[[], None]
 
     def __init__(
         self,
@@ -96,11 +102,12 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
             self.transport.close()
 
     def send_status_request(
-        self, macAddress: str, payload: str, ip: str = "255.255.255.255"
+        self, mac_address: str, payload: str, ip: str = "255.255.255.255"
     ):
+        """Send status request as broadcast."""
         data = (
             "a100"
-            + macAddress.lower()
+            + mac_address.lower()
             + "0007"
             + format(self.sequence, "04x")
             + "00000000"
@@ -115,6 +122,7 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
             sock.sendto(bytes.fromhex(data), (ip, UDP_PORT))
 
     def send(self, data: str, ip: str):
+        """Send package."""
         self.sequence += 1
 
         LOGGER.info("send packet: %s to %s", data, ip)

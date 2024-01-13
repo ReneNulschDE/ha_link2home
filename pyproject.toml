@@ -182,7 +182,7 @@ disable = [
     "multiple-imports", #E401
     "singleton-comparison", # E711, E712
     "superfluous-parens", # UP034
-    "ungrouped-imports", # I001
+    # "ungrouped-imports", # I001
     "unidiomatic-typecheck", # E721
     "unnecessary-direct-lambda-call", # PLC3002
     "unnecessary-lambda-assignment", # PLC3001

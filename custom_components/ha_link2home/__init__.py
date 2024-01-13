@@ -20,7 +20,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     coordinator = Link2HomeDataUpdateCoordinator(hass, websession, username, password)
     await coordinator.async_init()
-    await hass.async_block_till_done()
 
     await coordinator.async_config_entry_first_refresh()
 
