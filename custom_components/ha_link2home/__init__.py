@@ -25,9 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = coordinator
 
-    await hass.config_entries.async_forward_entry_setups(
-        config_entry, LINK2HOME_PLATFORMS
-    )
+    await hass.config_entries.async_forward_entry_setups(config_entry, LINK2HOME_PLATFORMS)
 
     config_entry.add_update_listener(config_entry_update_listener)
 
@@ -47,9 +45,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     coordinator: Link2HomeDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     coordinator.udpsession.close()
 
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, LINK2HOME_PLATFORMS
-    )
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, LINK2HOME_PLATFORMS)
 
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
