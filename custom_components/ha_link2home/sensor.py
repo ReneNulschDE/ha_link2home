@@ -26,10 +26,16 @@ from .model import Link2HomeDevice
 
 
 @dataclass(frozen=True)
-class Link2HomeSensorDescription(SensorEntityDescription):
-    """Class describing Link2Home sensor entities."""
+class Link2HomeSensorDescriptionMixin:
+    """Mixin for Link2Home sensor."""
 
     value_fn: Callable[[dict[str, Any]], str | int | float | datetime | None]
+
+
+@dataclass(frozen=True)
+class Link2HomeSensorDescription(SensorEntityDescription, Link2HomeSensorDescriptionMixin):
+    """Class describing Link2Home sensor entities."""
+
     attr_fn: Callable[[Any | None], dict[str, Any]] = lambda _: {}
 
 
