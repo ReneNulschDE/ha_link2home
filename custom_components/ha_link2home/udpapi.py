@@ -21,7 +21,6 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
     stopped = False
     transport: asyncio.DatagramTransport | None = None
     remote_addr: tuple[str, int] | None = None
-    locale_addr: tuple[str, int] | None = None
     sequence: int = 1
     initialized: bool = False
     handle_finished: Callable[[], None]
@@ -55,10 +54,9 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
         await asyncio.get_running_loop().create_datagram_endpoint(accept_connection, sock=sock)
 
         self.started = True
-        self.locale_addr = sock.getsockname()
         LOGGER.debug("Start accepting connections.")
 
-        return cast(int, self.locale_addr[1])
+        return cast(int, UDP_PORT)
 
     @callback
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
