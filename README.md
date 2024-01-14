@@ -1,6 +1,6 @@
 # ha_link2home
 
-![HassFest tests](https://github.com/renenulschde/ha_link2home_/workflows/Validate%20with%20hassfest/badge.svg)
+![HassFest tests](https://github.com/renenulschde/ha_link2home/workflows/Validate%20with%20hassfest/badge.svg)
 
 > :warning: This component is in an very early state and tested with an Link2Home D2 outdoor powerplug only.
 
