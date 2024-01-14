@@ -6,7 +6,7 @@ repos:
         args:
           - --fix
       - id: ruff-format
-        files: ^((homeassistant|pylint|script|tests)/.+)?[^/]+\.py$
+        files: ^((custom_components|pylint|script|tests)/.+)?[^/]+\.py$
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.2
     hooks:
@@ -17,18 +17,6 @@ repos:
           - --quiet-level=2
         exclude_types: [csv, json]
         exclude: ^tests/fixtures/|homeassistant/generated/|tests/components/.*/snapshots/
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
-    hooks:
-      - id: check-executables-have-shebangs
-        stages: [manual]
-      - id: check-json
-        exclude: (.vscode|.devcontainer)
-      - id: no-commit-to-branch
-        args:
-          - --branch=dev
-          - --branch=master
-          - --branch=rc
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.32.0
     hooks:
