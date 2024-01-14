@@ -26,16 +26,10 @@ from .model import Link2HomeDevice
 
 
 @dataclass(frozen=True)
-class Link2HomeSensorDescriptionMixin:
-    """Mixin for Link2Home sensor."""
-
-    value_fn: Callable[[dict[str, Any]], str | int | float | datetime | None]
-
-
-@dataclass(frozen=True)
-class Link2HomeSensorDescription(SensorEntityDescription, Link2HomeSensorDescriptionMixin):
+class Link2HomeSensorDescription(SensorEntityDescription):
     """Class describing Link2Home sensor entities."""
 
+    value_fn: Callable[[dict[str, Any]], str | int | float | datetime | None]
     attr_fn: Callable[[Any | None], dict[str, Any]] = lambda _: {}
 
 
@@ -48,7 +42,7 @@ SENSOR_TYPES: tuple[Link2HomeSensorDescription, ...] = (
         state_class=None,
         translation_key="online",
         value_fn=lambda data: cast(bool, data),
-    ),
+    ),  # type: ignore
     Link2HomeSensorDescription(
         key="channel1",
         device_class=None,
@@ -58,7 +52,7 @@ SENSOR_TYPES: tuple[Link2HomeSensorDescription, ...] = (
         state_class=None,
         native_unit_of_measurement=None,
         translation_key="channel1",
-    ),
+    ),  # type: ignore
     Link2HomeSensorDescription(
         key="channel2",
         device_class=None,
@@ -68,7 +62,7 @@ SENSOR_TYPES: tuple[Link2HomeSensorDescription, ...] = (
         state_class=None,
         native_unit_of_measurement=None,
         translation_key="channel2",
-    ),
+    ),  # type: ignore
     Link2HomeSensorDescription(
         key="last_operation",
         device_class=SensorDeviceClass.TIMESTAMP,
@@ -78,7 +72,7 @@ SENSOR_TYPES: tuple[Link2HomeSensorDescription, ...] = (
         state_class=None,
         native_unit_of_measurement=None,
         translation_key="channel2",
-    ),
+    ),  # type: ignore
     Link2HomeSensorDescription(
         key="last_operation_local",
         device_class=SensorDeviceClass.TIMESTAMP,
@@ -88,7 +82,7 @@ SENSOR_TYPES: tuple[Link2HomeSensorDescription, ...] = (
         state_class=None,
         native_unit_of_measurement=None,
         translation_key="channel2",
-    ),
+    ),  # type: ignore
 )
 
 
@@ -166,11 +160,14 @@ class Link2HomeSensor(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SensorE
             ),
         )
 
+        # pypy ignore - False positives info[attr_...]
         if self.device.mac_address:
-            info[ATTR_CONNECTIONS] = {(dr.CONNECTION_NETWORK_MAC, self.device.mac_address)}
+            info[ATTR_CONNECTIONS] = {  # type: ignore
+                (dr.CONNECTION_NETWORK_MAC, dr.format_mac(self.device.mac_address))
+            }
 
         if self.device.version:
-            info[ATTR_SW_VERSION] = self.device.version
+            info[ATTR_SW_VERSION] = self.device.version  # type: ignore
 
         return info
 

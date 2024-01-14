@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
+import voluptuous as vol  # type: ignore
 
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME

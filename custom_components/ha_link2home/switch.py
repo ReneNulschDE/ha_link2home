@@ -4,6 +4,8 @@ from __future__ import annotations
 import asyncio
 from typing import Any, cast
 
+from attr import dataclass
+
 from homeassistant import util
 from homeassistant.components.switch import (
     SwitchDeviceClass,
@@ -23,17 +25,23 @@ from .const import DOMAIN, LOGGER
 from .coordinator import Link2HomeDataUpdateCoordinator
 from .model import Link2HomeDevice
 
-SWITCH_TYPES: tuple[SwitchEntityDescription, ...] = (
-    SwitchEntityDescription(
+
+@dataclass(frozen=True)
+class Link2HomeSwitchEntityDescription(SwitchEntityDescription):
+    """Class describing Link2Home sensor entities."""
+
+
+SWITCH_TYPES: tuple[Link2HomeSwitchEntityDescription, ...] = (
+    Link2HomeSwitchEntityDescription(
         key="channel1",
         translation_key="switch_channel1",
         device_class=SwitchDeviceClass.SWITCH,
-    ),
-    SwitchEntityDescription(
+    ),  # type: ignore
+    Link2HomeSwitchEntityDescription(
         key="channel2",
         translation_key="switch_channel2",
         device_class=SwitchDeviceClass.SWITCH,
-    ),
+    ),  # type: ignore
 )
 
 
@@ -95,11 +103,14 @@ class Link2HomeSwitch(CoordinatorEntity[Link2HomeDataUpdateCoordinator], SwitchE
             ),
         )
 
+        # pypy ignore - False positives info[attr_...]
         if self.device.mac_address:
-            info[ATTR_CONNECTIONS] = {(dr.CONNECTION_NETWORK_MAC, self.device.mac_address)}
+            info[ATTR_CONNECTIONS] = {  # type: ignore
+                (dr.CONNECTION_NETWORK_MAC, dr.format_mac(self.device.mac_address))
+            }
 
         if self.device.version:
-            info[ATTR_SW_VERSION] = self.device.version
+            info[ATTR_SW_VERSION] = self.device.version  # type: ignore
 
         return info
 

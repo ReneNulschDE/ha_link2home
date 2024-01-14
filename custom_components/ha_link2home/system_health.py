@@ -1,7 +1,7 @@
 """Provide info to system health."""
 from __future__ import annotations
 
-from homeassistant.components import system_health
+from homeassistant.components import system_health  # type: ignore[attr-defined]
 from homeassistant.core import HomeAssistant, callback
 
 from .const import LOGIN_BASE_URI
