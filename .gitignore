@@ -106,3 +106,4 @@ venv.bak/
 
 sec_*.txt
 .vscode/
+.list-dev
