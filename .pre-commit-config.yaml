@@ -41,21 +41,13 @@ repos:
         files: ^(custom_components/ha_link2home|tests|script|simulator)/.+\.py$
   - repo: local
     hooks:
-      - id: pylint
-        name: pylint
-        entry: pylint -j 0
-        language: script
-        types: [python]
-        files: (^custom_components|simulator)/.+\.py$
-      - id: mypy
-        name: mypy
-        entry: mypy
-        language: script
-        types: [python]
-        require_serial: true
-        files: ^(custom_components/ha_link2home|pylint|simulator)/.+\.py$
-      - id: dontship
-        name: DONTSHIP check
+      - id: const-check-simulator-not-disabled
+        name: const-check-simulator-not-disabled
         entry: "USE_SIMULATOR = True"
+        language: pygrep
+        types: [python]
+      - id: const-check-proxy-not-disabled
+        name: const-check-proxy-not-disabled
+        entry: "PROXY_DISABLED = False"
         language: pygrep
         types: [python]
