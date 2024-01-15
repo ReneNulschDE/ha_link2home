@@ -88,6 +88,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 devices = self.data
 
             while not self.udpsession.queue.empty():
+                self.udp_data.clear()
                 queue_item: str = self.udpsession.queue.get_nowait()
                 item = queue_item.split("_")
                 self.process_udp_message(item[0], item[1], item[2])
@@ -108,6 +109,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     LOGGER.debug("_async_update_data: mac not in devices")
 
+            self.udp_data.clear()
             return devices
 
         except (ClientConnectorError,) as error:
@@ -135,6 +137,9 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def process_udp_message(self, data: str, ip, port):
         """Process UDP message and extract data."""
+
+        LOGGER.debug("process_udp_message start: %s - %s - %s", ip, port, data)
+
         msg_type = data[2:4]
 
         if msg_type not in ("04", "06"):
