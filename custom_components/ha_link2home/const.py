@@ -11,9 +11,12 @@ ATTR_MANUFACTURER = "Link2Home"
 DOMAIN = "ha_link2home"
 LOGGER = logging.getLogger(__package__)
 
-LOGIN_BASE_URI = "https://userdata.link2home.com"
-
+USE_SIMULATOR = False
+LOGIN_BASE_URI_CLOUD = "https://userdata.link2home.com"
+LOGIN_BASE_URI_SIMULATOR = "http://0.0.0.0:8000"
+LOGIN_BASE_URI = LOGIN_BASE_URI_CLOUD if not USE_SIMULATOR else LOGIN_BASE_URI_SIMULATOR
 GENERAL_AUTH_CODE = "7150"
+
 
 PROXY_DISABLED = True
 DISABLE_SSL_CERT_CHECK = not PROXY_DISABLED
