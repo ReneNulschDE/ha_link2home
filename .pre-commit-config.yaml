@@ -54,3 +54,8 @@ repos:
         types: [python]
         require_serial: true
         files: ^(custom_components/ha_link2home|pylint|simulator)/.+\.py$
+      - id: dontship
+        name: DONTSHIP check
+        entry: "USE_SIMULATOR = True"
+        language: pygrep
+        types: [python]
