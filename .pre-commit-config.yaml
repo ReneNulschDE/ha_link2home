@@ -43,13 +43,13 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: scripts/run-in-env.sh pylint -j 0
+        entry: pylint -j 0
         language: script
         types: [python]
         files: (^custom_components|simulator)/.+\.py$
       - id: mypy
         name: mypy
-        entry: scripts/run-in-env.sh mypy
+        entry: mypy
         language: script
         types: [python]
         require_serial: true
