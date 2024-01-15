@@ -72,7 +72,6 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 LOGGER.debug(devices)
 
                 for result in devices:
-                    LOGGER.debug(result)
                     await asyncio.sleep(0.5)
 
                     for _x in range(0, 3):
@@ -87,8 +86,9 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             else:
                 devices = self.data
 
+            self.udp_data.clear()
+
             while not self.udpsession.queue.empty():
-                self.udp_data.clear()
                 queue_item: str = self.udpsession.queue.get_nowait()
                 item = queue_item.split("_")
                 self.process_udp_message(item[0], item[1], item[2])
@@ -109,7 +109,6 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     LOGGER.debug("_async_update_data: mac not in devices")
 
-            self.udp_data.clear()
             return devices
 
         except (ClientConnectorError,) as error:
