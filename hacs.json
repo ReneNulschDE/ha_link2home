@@ -1,5 +1,7 @@
 {
   "name": "Link2Home",
   "homeassistant": "2023.11.0",
-  "render_readme": true
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "ha_link2home.zip"
 }
