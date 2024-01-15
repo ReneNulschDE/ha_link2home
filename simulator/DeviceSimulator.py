@@ -84,6 +84,35 @@ class Link2HomeSimulatedDeviceProtocol(asyncio.DatagramProtocol):
             ]
 
             self.send_message("".join(new_msg_data), addr[0])
+            return
+
+        if msg_type == "04":
+            requested_channel_state: str = payload[8:10]
+
+            LOGGER.debug(
+                "Switch %s event for device %s and channel %s",
+                requested_channel_state,
+                mac,
+                channel,
+            )
+
+            SIMULATED_DEVICES[mac][channel] = requested_channel_state
+
+            new_msg_data = [
+                "a1",
+                "04",
+                mac,
+                "0011",  # Payload Length
+                msg[20:24],  # Sequence
+                "02",  # Vendor
+                SIMULATED_DEVICES[mac]["device"],  # DeviceType
+                LOCAL_CODE,
+                "03",
+                channel,
+                SIMULATED_DEVICES[mac][channel],
+            ]
+
+            self.send_message("".join(new_msg_data), addr[0])
 
 
 def set_logger():
