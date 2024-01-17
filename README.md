@@ -1,16 +1,16 @@
-# ha_link2home
+# Link2Home Powerplugs integration for Home-Assistant
 
 ![HassFest tests](https://github.com/renenulschde/ha_link2home/workflows/Validate%20with%20hassfest/badge.svg)
 
 > :warning: This component is in an very early state and tested with an Link2Home D2 outdoor powerplug only.
 
-### Features:
+## Features:
 
 - Connect to Link2Home Cloud and collect registered devices
 - Find registered devices in your local network
 - Create sensors and switches for the found devices
 
-### Installation
+## Installation
 
 - This is a Home Assistant custom component (not an Add-in).
 - Download the folder custom_component and copy it into your Home-Assistant config folder.
@@ -18,7 +18,7 @@
 - Restart HA, Refresh your HA Browser window
 - (or add the github repo Url to HACS...)
 
-### Configuration
+## Configuration
 
 Use the "Add Integration" in Home Assistant and select "Link2Home" and follow the following steps:
 
@@ -28,11 +28,11 @@ Use the "Add Integration" in Home Assistant and select "Link2Home" and follow th
    - set new value: `sudo sysctl -w net.ipv4.ping_group_range="0 65535"`
    - Note: Unsecure config, check the group id of your HA-user and adjust the values. (`getent group YOUR_USER`, example: `="1000 1000"`)
 
-### Sensors
+## Sensors
 
 Todo: Add doc
 
-### Switches
+## Switches
 
 Switches are created for each channel.
 Todo: Add doc
