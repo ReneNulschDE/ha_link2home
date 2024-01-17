@@ -37,7 +37,7 @@ Todo: Add doc
 Switches are created for each channel.
 Todo: Add doc
 
-### Logging
+## Logging
 
 Set the logging to debug with the following settings in case of problems.
 
@@ -48,9 +48,19 @@ logger:
     custom_components.ha_link2home: debug
 ```
 
-### Thanks
+## Thanks
 
 Based on the repos:
 
 - https://github.com/TA2k/ioBroker.link2home
 - https://github.com/oxygen0211/ha-link2home
+
+## Trademark Legal Notices
+
+All product names, trademarks and registered trademarks in the images in this
+repository, are property of their respective owners. All images in this
+repository are used by this project for identification purposes
+only.
+
+The use of these names, trademarks and brands appearing in these image files,
+do not imply endorsement.
