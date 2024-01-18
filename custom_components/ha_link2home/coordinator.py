@@ -9,6 +9,7 @@ from typing import Any
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
 
+from homeassistant.components.network import async_get_source_ip
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -39,13 +40,20 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Initialize."""
 
         self.hass: HomeAssistant = hass
-        self.webapi: Link2HomeWebApi = Link2HomeWebApi(session, username, password)
-        self.udpsession: Link2HomeUDPServer = Link2HomeUDPServer(self.handle_udp_events)
-
+        self.username: str = username
+        self.password: str = password
+        self.session: ClientSession = session
         super().__init__(hass, LOGGER, name=DOMAIN, update_interval=UPDATE_INTERVAL)
 
     async def async_init(self) -> bool:
-        """Addition init async."""
+        """Additionial init async."""
+
+        self.local_ip: str = await async_get_source_ip(self.hass)
+        self.webapi: Link2HomeWebApi = Link2HomeWebApi(self.session, self.username, self.password)
+        self.udpsession: Link2HomeUDPServer = Link2HomeUDPServer(
+            self.handle_udp_events, self.local_ip
+        )
+
         try:
             async with asyncio.timeout(10):
                 return await self.webapi.login()

@@ -25,13 +25,11 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
     initialized: bool = False
     handle_finished: Callable[[], None]
 
-    def __init__(
-        self,
-        handle_event,
-    ) -> None:
+    def __init__(self, handle_event, local_ip: str) -> None:
         """Initialize UDP receiver."""
-        self.handle_event = handle_event
+        self.handle_event: Callable[[], None] = handle_event
         self.queue: q.Queue = q.Queue()
+        self.local_ip = local_ip
 
     async def start_server(self) -> int:
         """Start accepting connections."""
@@ -49,14 +47,11 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
         sock = socket(AF_INET, SOCK_DGRAM)
         sock.setblocking(False)
 
-        sock.bind(("", UDP_PORT))
+        sock.bind((self.local_ip, UDP_PORT))
 
         await asyncio.get_running_loop().create_datagram_endpoint(accept_connection, sock=sock)
 
-        self.started = True
-        LOGGER.debug("Start accepting connections.")
-
-        return cast(int, UDP_PORT)
+        return cast(int, sock.getsockname()[1])
 
     @callback
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
