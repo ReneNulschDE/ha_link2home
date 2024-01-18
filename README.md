@@ -65,8 +65,7 @@ Based on the repos:
 
 ## Trademark Legal Notices
 
-All product names, trademarks and registered trademarks in the images in this
-repository, are property of their respective owners are used by this project for identification purposes
-only.
+All product names, trademarks and registered trademarks in this
+repository, are property of their respective owners are used by this project for identification purposes only.
 
 The use of these names, trademarks and brands appearing do not imply endorsement.
