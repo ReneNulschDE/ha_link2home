@@ -48,6 +48,6 @@ repos:
         types: [python]
       - id: const-check-proxy-not-disabled
         name: const-check-proxy-not-disabled
-        entry: "PROXY_DISABLED = False"
+        entry: "USE_PROXY = True"
         language: pygrep
         types: [python]
