@@ -5,10 +5,14 @@ from homeassistant.exceptions import HomeAssistantError
 
 
 class Link2HomeException(HomeAssistantError):
-    """Base class for Acmeda Pulse exceptions."""
+    """Base class for Link2Home exceptions."""
 
 
-class CannotConnectCloud(Link2HomeException):
+class Link2HomeCloudAuthException(Link2HomeException):
+    """Cloud authentication errors."""
+
+
+class Link2HomeCloudConnectException(Link2HomeException):
     """Unable to connect to the cloud."""
 
 

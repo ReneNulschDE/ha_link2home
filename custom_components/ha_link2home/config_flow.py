@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from aiohttp import ClientConnectionError, ClientError
 import voluptuous as vol  # type: ignore
 
 from homeassistant.config_entries import ConfigFlow
@@ -11,7 +12,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, VERIFY_SSL
 from .webapi import Link2HomeWebApi
 
 CONFIG_SCHEMA = vol.Schema(
@@ -51,18 +52,50 @@ class Link2HomeConfigFlow(ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
         webapi: Link2HomeWebApi = Link2HomeWebApi(
-            async_get_clientsession(self.hass), username, password
+            self.hass, async_get_clientsession(self.hass, VERIFY_SSL), username, password
         )
-        if not await webapi.login():
-            LOGGER.info("")
-            errors["base"] = "cannot_connect"
-            return self.async_show_form(step_id="user", data_schema=CONFIG_SCHEMA, errors=errors)
 
-        return self.async_create_entry(
-            title=username,
-            data={},
-            options={CONF_USERNAME: username, CONF_PASSWORD: password},
-        )
+        try:
+            (
+                login_result,
+                login_result_code,
+                login_result_msg,
+            ) = await webapi.login()
+            LOGGER.debug(
+                "result: %s, code: %s, msg: %s", login_result, login_result_code, login_result_msg
+            )
+            if login_result:
+                LOGGER.debug("Login successful. Creating config entry")
+            elif not login_result and login_result_code != 0:
+                errors["base"] = f"Invalid credentials: {login_result_msg}"
+                return self.async_show_form(
+                    step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
+                )
+            elif not login_result and login_result_code == 0:
+                errors[
+                    "base"
+                ] = "Unknown login error. Please check the logs with diagnostic mode on."
+                return self.async_show_form(
+                    step_id="user", data_schema=CONFIG_SCHEMA, errors=errors
+                )
+        except (ClientError, ClientConnectionError) as error:
+            LOGGER.debug("Can't connect to the Link2Home cloud.", error)
+            errors[
+                "base"
+            ] = "Can't connect to the Link2Home cloud. Please check the logs with diagnostic mode on."
+        except Exception as error:
+            LOGGER.debug("Unknown error connecting Link2Home cloud.", error)
+            errors[
+                "base"
+            ] = "Unknown error connecting to the Link2Home cloud. Please check the logs with diagnostic mode on."
+        else:
+            return self.async_create_entry(
+                title=username,
+                data={},
+                options={CONF_USERNAME: username, CONF_PASSWORD: password},
+            )
+
+        return self.async_show_form(step_id="user", data_schema=CONFIG_SCHEMA, errors=errors)
 
     async def async_step_reauth(self, user_input=None):
         """Get new tokens for a config entry that can't authenticate."""

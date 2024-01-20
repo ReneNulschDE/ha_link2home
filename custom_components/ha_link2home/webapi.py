@@ -8,13 +8,16 @@ import logging
 import traceback
 from typing import Any
 
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientError
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
-from .const import DISABLE_SSL_CERT_CHECK, LOGIN_BASE_URI, SYSTEM_PROXY
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+from .const import LOGIN_BASE_URI, SYSTEM_PROXY, VERIFY_SSL
 from .model import Link2HomeDevice
 
 LOGGER = logging.getLogger(__name__)
@@ -25,11 +28,13 @@ class Link2HomeWebApi:
 
     def __init__(
         self,
+        hass: HomeAssistant,
         session: ClientSession,
         username: str,
         password: str,
     ) -> None:
         """Initialize."""
+        self.hass: HomeAssistant = hass
         self._session: ClientSession = session
         self._username: str = username
         self._password: str = password
@@ -52,8 +57,11 @@ class Link2HomeWebApi:
 
         return signature
 
-    async def login(self) -> bool:
-        """Get the login token from link2home cloud."""
+    async def login(self) -> tuple[bool, int, str]:
+        """Get the login token from link2home cloud.
+
+        tuple[result: bool, code: int, optional msg: string]
+        """
         LOGGER.debug("login: Start")
 
         data = {
@@ -68,20 +76,20 @@ class Link2HomeWebApi:
 
         data |= {"sign": self._create_sign(data).decode("utf-8")}
 
-        LOGGER.debug("login: %s", data)
-
         login_response = await self._request("post", "/api/service/user/login", data=data)
 
-        if login_response.get("code") and login_response.get("code") == 600:
-            LOGGER.debug("login: %s", login_response)
-            self.token = login_response.get("data").get("token")
-            return True
+        if login_response:
+            result_code: int = login_response.get("code", 0)
 
-        if login_response.get("code"):
-            return False
+            if result_code == 600:
+                LOGGER.debug("login successful.")
+                self.token = login_response.get("data").get("token")
+                return True, result_code, ""
+            LOGGER.debug("login failed.")
+            result_msg: str = login_response.get("msg", "")
+            return False, result_code, result_msg
 
-        LOGGER.warning("login: other error -  %s", login_response)
-        return False
+        return False, 0, "Unknown error."
 
     async def get_device_list(self) -> dict[str, Link2HomeDevice]:
         """Get device list from link2home cloud."""
@@ -129,7 +137,6 @@ class Link2HomeWebApi:
         self,
         method: str,
         endpoint: str,
-        ignore_errors: bool = False,
         **kwargs,
     ) -> Any:
         """Make a request against the API."""
@@ -137,7 +144,6 @@ class Link2HomeWebApi:
         url = f"{LOGIN_BASE_URI}{endpoint}"
         kwargs.setdefault("headers", {})
         kwargs.setdefault("proxy", SYSTEM_PROXY)
-        kwargs.setdefault("ssl", DISABLE_SSL_CERT_CHECK)
 
         kwargs["headers"] = {
             "Accept": "*/*",
@@ -145,34 +151,24 @@ class Link2HomeWebApi:
             "Accept-Language": "de-DE;q=1.0, en-DE;q=0.9",
         }
 
-        use_running_session = self._session and not self._session.closed
+        if not self._session or self._session.closed:
+            self._session = async_get_clientsession(self.hass, VERIFY_SSL)
 
-        if use_running_session:
-            session = self._session
-        else:
-            session = ClientSession(timeout=ClientTimeout(total=30))
-
+        response_code = 0
         try:
-            # async with session.request(method, url, proxy=proxy, ssl=False, **kwargs) as resp:
-            if "url" in kwargs:
-                async with session.request(method, **kwargs) as resp:
-                    # resp.raise_for_status()
-                    return await resp.json(content_type=None)
-            else:
-                async with session.request(method, url, **kwargs) as resp:
-                    resp.raise_for_status()
-                    return await resp.json(content_type=None)
+            async with self._session.request(method, url, **kwargs) as resp:
+                response_code = resp.status
+                return await resp.json(content_type=None)
 
-        except ClientError as err:
+        except (ClientError, Exception) as error:
+            LOGGER.debug("Link2Home Request Error.")
+            LOGGER.debug("Request Url: %s", url)
+            LOGGER.debug("Request Method: %s", method)
+            if "data" in kwargs:
+                LOGGER.debug("Request Data: %s", kwargs["data"])
+            LOGGER.debug("Response Status: %s", response_code)
             LOGGER.debug(traceback.format_exc())
-            if not ignore_errors:
-                raise ClientError from err
-            return None
-        except Exception:
-            LOGGER.debug(traceback.format_exc())
-        finally:
-            if not use_running_session:
-                await session.close()
+            raise error
 
     def dict_to_querystring(self, params):
         """Convert a dict in querystring without encoding."""
