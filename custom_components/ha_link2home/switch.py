@@ -1,4 +1,5 @@
 """Support for Blink Motion detection switches."""
+
 from __future__ import annotations
 
 import asyncio
@@ -58,8 +59,10 @@ async def async_setup_entry(
 
     for result in data:
         if result.channel1 != "XX":
+            LOGGER.debug("Result channel 1")
             entities.append(Link2HomeSwitch(result, coordinator, SWITCH_TYPES[0]))
         if result.channel2 != "XX":
+            LOGGER.debug("Result channel 2")
             entities.append(Link2HomeSwitch(result, coordinator, SWITCH_TYPES[1]))
 
     LOGGER.debug("async_setup_entry: Switch count for creation - %s", len(entities))
