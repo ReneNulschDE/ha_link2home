@@ -1,4 +1,5 @@
 """The Link2Home UDP API."""
+
 from __future__ import annotations
 
 import asyncio
@@ -66,6 +67,7 @@ class Link2HomeUDPServer(asyncio.DatagramProtocol):
         if self.remote_addr is None:
             self.remote_addr = addr
 
+        LOGGER.debug("datagram_received: %s_%s_%s", data.hex(), addr[0], addr[1])
         self.queue.put(f"{data.hex()}_{addr[0]}_{addr[1]}")
         if self.initialized:
             self.handle_event()

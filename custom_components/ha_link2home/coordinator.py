@@ -1,4 +1,5 @@
 """The Link2Home Data Coordinator."""
+
 from __future__ import annotations
 
 import asyncio
@@ -148,7 +149,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         commandType = data[32:34]
         payload = data[34 : 34 + int(lengthPayload)]
 
-        if commandType in ("02", "03"):
+        if commandType in ("01", "02", "03"):
             channel = payload[0:2]
             key = f"{mac}_{channel}_{ip}"
             if len(payload) < 4:
