@@ -4,6 +4,8 @@
 
 > :warning: This component is in an very early state and tested with an Link2Home D2 outdoor powerplug only.
 
+> :warning: This component is not compatible with the "Link2Home Pro"-App.
+
 ## Features:
 
 - Connect to Link2Home Cloud and collect registered devices
