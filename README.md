@@ -2,7 +2,7 @@
 
 ![HassFest tests](https://github.com/renenulschde/ha_link2home/workflows/Validate%20with%20hassfest/badge.svg)
 
-> :warning: This component is in an very early state and tested with an Link2Home D2 outdoor powerplug only.
+> :warning: I have no plans to further extend the integration as I don't have access to other devices.
 
 > :warning: This component is not compatible with the "Link2Home Pro"-App.
 
