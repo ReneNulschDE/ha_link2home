@@ -1,4 +1,5 @@
 """The Link2Home integration."""
+
 from __future__ import annotations
 
 import traceback
@@ -26,7 +27,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     websession = async_get_clientsession(hass, VERIFY_SSL)
     local_ip = await async_get_source_ip(hass)
 
-    coordinator = Link2HomeDataUpdateCoordinator(hass, websession, username, password, local_ip)
+    coordinator = Link2HomeDataUpdateCoordinator(
+        hass, websession, username, password, local_ip, config_entry
+    )
 
     try:
         (

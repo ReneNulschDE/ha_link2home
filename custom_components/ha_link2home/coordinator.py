@@ -9,7 +9,10 @@ from typing import Any
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
+from awesomeversion import AwesomeVersion
 
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import __version__ as HAVERSION
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -21,6 +24,10 @@ from .webapi import Link2HomeWebApi
 UPDATE_INTERVAL = timedelta(minutes=60)
 BROADCAST_IP = "255.255.255.255"
 LOGGER = logging.getLogger(__name__)
+
+# Version threshold for config_entry setting in options flow
+# See: https://github.com/home-assistant/core/pull/127980
+HA_DATACOORDINATOR_CONTEXTVAR_VERSION_THRESHOLD = "2025.07.99"
 
 
 class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -36,6 +43,7 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         username: str,
         password: str,
         local_ip: str,
+        config_entry: ConfigEntry,
     ) -> None:
         """Initialize."""
 
@@ -44,7 +52,17 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.password: str = password
         self.session: ClientSession = session
         self.local_ip: str = local_ip
-        super().__init__(hass, LOGGER, name=DOMAIN, update_interval=UPDATE_INTERVAL)
+
+        if AwesomeVersion(HAVERSION) < HA_DATACOORDINATOR_CONTEXTVAR_VERSION_THRESHOLD:
+            super().__init__(hass, LOGGER, name=DOMAIN, update_interval=UPDATE_INTERVAL)
+        else:
+            super().__init__(
+                hass,
+                LOGGER,
+                name=DOMAIN,
+                config_entry=config_entry,
+                update_interval=UPDATE_INTERVAL,
+            )
 
         self.webapi: Link2HomeWebApi = Link2HomeWebApi(
             self.hass, self.session, self.username, self.password
