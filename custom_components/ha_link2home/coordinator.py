@@ -89,6 +89,8 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 LOGGER.debug(devices)
 
                 for result in devices:
+                    # Ask the device to announce itself before querying its channels.
+                    self.udpsession.send_status_request(result, "23", BROADCAST_IP)
                     await asyncio.sleep(0.5)
 
                     for _x in range(0, 3):
@@ -166,6 +168,11 @@ class Link2HomeDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         lengthPayload = data[16:20]
         commandType = data[32:34]
         payload = data[34 : 34 + int(lengthPayload)]
+
+        if commandType == "23":
+            # Retain the sender IP from the device announcement.
+            self.udp_data[f"{mac}_00_{ip}"] = "00"
+            return
 
         if commandType in ("01", "02", "03"):
             channel = payload[0:2]
